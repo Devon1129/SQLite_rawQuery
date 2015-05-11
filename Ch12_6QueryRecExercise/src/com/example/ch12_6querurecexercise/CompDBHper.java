@@ -9,8 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class CompDBHper extends SQLiteOpenHelper {
 	private static final String TABLE_NAME = "Cus";
+	// [Fix] 修正create table SQL: from "CREATE_TABLE" to "CREATE TABLE"
 	private static final String CREATE_TABLE =
-		"CREATE_TABLE " + TABLE_NAME +
+		//"CREATE_TABLE " + TABLE_NAME +
+		"CREATE TABLE " + TABLE_NAME +
 		" ( " + 
 		" cusNo VARCHAR(10) NOT NULL, " +
 		" cusNa VARCHAR(20) NOT NULL, " + 
@@ -63,8 +65,13 @@ public class CompDBHper extends SQLiteOpenHelper {
 
 	public String FindRec(String CusNo){
 		SQLiteDatabase db = getReadableDatabase();
-		String sql = " SELECT * FROM " + TABLE_NAME;
-		String[] args = {"%" + "%"};
+		// [Fix] 加入 where 子句
+		String sql = " SELECT * FROM " + TABLE_NAME + " where cusNo like ? ";
+		// [Fix] 修改 select 的 where 參數: 加入 CusNo.
+		//    (不用單引號, 因為=>)The Sqlite framework automatically puts single-quotes around the ? character internally.
+		//    http://stackoverflow.com/questions/5934854/android-sql-raw-query-with-wildcard/6487087#6487087
+		//String[] args = {"%" + "%"};
+		String[] args = new String[]{"%" + CusNo + "%"};
 		Cursor recSet = db.rawQuery(sql, args);
 		int columnCount = recSet.getColumnCount();
 		String fldSet = null;
